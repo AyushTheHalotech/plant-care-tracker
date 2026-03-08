@@ -17,13 +17,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.materialIcon
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -33,23 +32,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.thehalotech.planthealthtracker.R
+import com.thehalotech.planthealthtracker.navigation.Routes
 import com.thehalotech.planthealthtracker.ui.theme.CardBackground
 import com.thehalotech.planthealthtracker.ui.theme.LightGreenBackground
 import com.thehalotech.planthealthtracker.ui.theme.PlantGreen
+import java.nio.file.Files.size
 
-@Preview
 @Composable
-fun DashboardScreen() {
+fun DashboardScreen(navController: NavController) {
 
     Column(modifier = Modifier.fillMaxSize()
         .background(color = LightGreenBackground)) {
@@ -57,7 +55,7 @@ fun DashboardScreen() {
         Spacer(modifier = Modifier.height(16.dp))
         HeroPlantCard()
         Spacer(modifier = Modifier.height(16.dp))
-        PlantList()
+        PlantList(navController)
 
     }
 
@@ -68,7 +66,7 @@ fun ProfileHeader() {
     Row(modifier = Modifier.fillMaxWidth()
         .padding(horizontal = 20.dp, vertical = 30.dp),
         verticalAlignment = Alignment.CenterVertically) {
-        Image(painter = painterResource(R.drawable.profile),
+        Image(painter = painterResource(R.drawable.account_circle),
             contentDescription = "Plant",
             contentScale = ContentScale.FillBounds,
             modifier = Modifier.clip(CircleShape)
@@ -153,7 +151,7 @@ fun WeatherCard(stat: String, value: String) {
 }
 
 @Composable
-fun PlantList() {
+fun PlantList(navController: NavController) {
 
     Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween) {
@@ -161,7 +159,9 @@ fun PlantList() {
 
         Text(text = "Show All >>>",
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.clickable { /*TODO*/ }
+            modifier = Modifier.clickable {
+                navController.navigate(Routes.MY_PLANTS)
+            }
         )
     }
 
@@ -208,21 +208,28 @@ fun PlantCard() {
     Card(modifier = Modifier.fillMaxWidth().height(180.dp),
         elevation = CardDefaults.cardElevation(6.dp),
         colors = CardDefaults.cardColors(containerColor = CardBackground))  {
-        Column(modifier = Modifier.padding(10.dp).fillMaxSize()) {
-            Image(painter = painterResource(R.drawable.plant),
-                contentDescription = "Plant",
-                modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally).weight(1f),
-                contentScale = ContentScale.Crop)
-            Text(
-                text = "Cherry Tomato",
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp
-            )
-            Text(
-                text = "Water in 2 days",
-                fontSize = 12.sp
-            )
+        Box {
+            Image(painter = painterResource(R.drawable.card_back), contentDescription = "null",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+                alpha = .7f)
+            Column(modifier = Modifier.padding(10.dp).fillMaxSize()) {
+                Image(painter = painterResource(R.drawable.plant),
+                    contentDescription = "Plant",
+                    modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally).weight(1f),
+                    contentScale = ContentScale.Crop)
+                Text(
+                    text = "Cherry Tomato",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+                Text(
+                    text = "Water in 2 days",
+                    fontSize = 12.sp
+                )
+            }
         }
+
 
     }
 }
