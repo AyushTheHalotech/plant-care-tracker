@@ -60,6 +60,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PlantHealthTrackerTheme {
+                //Add Dashboard
                 DashboardScreen()
             }
         }
