@@ -1,9 +1,7 @@
 package com.thehalotech.planthealthtracker.ui.components.addplants
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
@@ -18,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.thehalotech.planthealthtracker.data.model.PlantEntity
 import com.thehalotech.planthealthtracker.data.model.PlantSearchItem
 import kotlin.collections.forEach
 
@@ -25,9 +24,9 @@ import kotlin.collections.forEach
 @Composable
 fun PlantNameInput(
     plantName: String,
-    results: List<PlantSearchItem>,
+    results: List<PlantEntity>,
     onNameChange: (String) -> Unit,
-    onPlantSelected: (PlantSearchItem) -> Unit,
+    onPlantSelected: (PlantEntity) -> Unit,
     isLoading: Boolean
 ) {
 
@@ -54,7 +53,6 @@ fun PlantNameInput(
                         CircularProgressIndicator(
                             modifier = Modifier.size(24.dp),
                             strokeWidth = 2.dp
-
                         )
                     }
                 }
@@ -68,7 +66,7 @@ fun PlantNameInput(
                     DropdownMenuItem(
                         text = {
                             Text(
-                                "${plant.commonName ?: "Unknown"} — ${plant.scientificName?.firstOrNull() ?: ""}"
+                                plant.entityName
                             )
                         },
                         onClick = {

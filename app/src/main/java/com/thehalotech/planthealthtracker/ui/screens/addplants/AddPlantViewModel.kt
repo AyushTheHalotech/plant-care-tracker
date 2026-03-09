@@ -1,6 +1,8 @@
 package com.thehalotech.planthealthtracker.ui.screens.addplants
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -9,9 +11,11 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.thehalotech.planthealthtracker.BuildConfig
 import com.thehalotech.planthealthtracker.data.api.PlantApiService
-import com.thehalotech.planthealthtracker.data.api.RetrofitClient
+import com.thehalotech.planthealthtracker.data.local.MyPlantsTable
 import com.thehalotech.planthealthtracker.data.model.PlantDetails
+import com.thehalotech.planthealthtracker.data.model.PlantEntity
 import com.thehalotech.planthealthtracker.data.model.PlantSearchItem
+import com.thehalotech.planthealthtracker.data.repository.PlantRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,9 +24,11 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
 
 @OptIn(FlowPreview::class)
-class AddPlantViewModel(private val api: PlantApiService) : ViewModel() {
+class AddPlantViewModel(private val api: PlantApiService,
+    private val repository: PlantRepository) : ViewModel() {
 
     companion object {
         private const val TAG = "TheHalotech::AddPlantViewModel"
@@ -31,13 +37,13 @@ class AddPlantViewModel(private val api: PlantApiService) : ViewModel() {
     var searchQuery by mutableStateOf("")
         private set
 
-    var searchResults by mutableStateOf<List< PlantSearchItem>>(emptyList())
+    var searchResults by mutableStateOf<List< PlantEntity>>(emptyList())
         private set
 
     var isLoading by mutableStateOf(false)
         private set
 
-    var selectedPlant by mutableStateOf<PlantSearchItem?>(null)
+    var selectedPlant: PlantEntity? by mutableStateOf<PlantEntity?>(null)
         private set
 
     var plantName by mutableStateOf("")
@@ -56,6 +62,9 @@ class AddPlantViewModel(private val api: PlantApiService) : ViewModel() {
         private set
 
     private val queryFlow = MutableStateFlow("")
+
+    val plants = repository.plants
+
 
     init {
         viewModelScope.launch {
@@ -76,8 +85,8 @@ class AddPlantViewModel(private val api: PlantApiService) : ViewModel() {
     private suspend fun searchPlant(query: String) {
         try {
             isLoading = true
-            val response = api.searchPlants(BuildConfig.PLANT_API_KEY, query)
-            searchResults = response.data
+            val response = api.searchPlantsName(query)
+            searchResults = response.entities
                 .take(4)
             Log.i(TAG, response.toString())
         } catch (e: Exception) {
@@ -86,14 +95,21 @@ class AddPlantViewModel(private val api: PlantApiService) : ViewModel() {
         isLoading = false
     }
 
-    fun onPlantSelected(plant: PlantSearchItem) {
+    fun onPlantSelected(plant: PlantEntity) {
         selectedPlant = plant
-        Log.i(TAG, plant.toString())
-        searchQuery = plant.commonName ?: ""
-        searchResults = emptyList()
-        viewModelScope.launch {
-            fetchPlantDetails(plant.id)
+        if(null != selectedPlant) {
+            Log.i(TAG, plant.toString())
+            searchQuery = plant.entityName ?: ""
+            searchResults = emptyList()
+        } else {
+            searchResults = emptyList()
         }
+
+
+        viewModelScope.launch {
+            fetchPlantDetails(plant.accessToken)
+        }
+
     }
 
     fun updatePlantType(value: String) {
@@ -116,53 +132,59 @@ class AddPlantViewModel(private val api: PlantApiService) : ViewModel() {
         plantName = value
     }
 
-    private suspend fun fetchPlantDetails(plantId: Int) {
-        if(plantId > 3000) {
-            Log.i(TAG, "Plant ID is greater than 3000, upgrade to premium plan")
-            return
-        }
+    val details = "common_names,description,watering,best_light_condition"
+
+    private suspend fun fetchPlantDetails(plantId: String) {
+        Log.i(TAG, "Fetching plant details")
         try {
             isLoading = true
-            Log.i(TAG, "Fetching plant details")
-            val response = api.getPlantDetailsRaw(
+            val response = api.getPlantDetailsByName(
                 plantId,
-                BuildConfig.PLANT_API_KEY
+                details
             )
-            Log.i(TAG, "HTTP code: ${response.code()}")
-            Log.i(TAG, "HTTP message: ${response.message()}")
-            Log.i(TAG, "Response headers: ${response.headers()}")
+            Log.i(TAG, response.toString())
+            val common_name = response.commonNames.firstOrNull()?:""
+            val det = response.description.value
+            val moisture = response.watering.max
+            var wateringFreq = 0
+            val sunlight = response.bestLightCondition
+            val name = response.name
 
-            if(response.isSuccessful) {
-                val body = response.body()
-                Log.i(TAG, "Response body: $body")
-                if (body != null && body.trim().startsWith("{")) {
-                    val detailsResonse = Gson().fromJson(body, PlantDetails::class.java)
-                    val wateringFrequency = detailsResonse.wateringBenchmark?.value
-                        ?.replace("\"", "")
-                        ?.split("-")
-                        ?.firstOrNull()
-                        ?: "0"
-                    Log.i(TAG, wateringFrequency)
-                    val sunlightRequirements = detailsResonse.sunlight?.joinToString(";") ?: ""
 
-                    withContext(Dispatchers.Main) {
-                        plantName = detailsResonse.commonName ?: ""
-                        plantType = detailsResonse.scientificName?.firstOrNull() ?: ""
-                        wateringSchedule = "$wateringFrequency days"
-                        lightRequirement = sunlightRequirements
-                        description = detailsResonse.description ?: ""
-                    }
-
-                } else {
-                    Log.e(TAG, "Invalid response format")
-                }
+            wateringFreq = when(moisture) {
+                1 -> 7
+                2 -> 3
+                3 -> 1
+                else -> 2
             }
 
+            withContext(Dispatchers.Main) {
+                plantName = name
+                plantType = common_name
+                wateringSchedule = wateringFreq.toString()
+                lightRequirement = sunlight
+                description = det
+            }
 
         } catch (e: Exception) {
             Log.e(TAG, e.printStackTrace().toString())
         }
         isLoading = false
+    }
+
+    fun addPlant() {
+        val dateAdded = LocalDate.now().toEpochDay()
+        viewModelScope.launch {
+            val plant = MyPlantsTable(
+                plantName = plantName,
+                commonName = plantType,
+                wateringFrequency = wateringSchedule,
+                lastWatered = dateAdded,
+                lightRequirement = lightRequirement,
+                description = description
+            )
+            repository.addPlant(plant)
+        }
     }
 
 }

@@ -41,13 +41,14 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.thehalotech.planthealthtracker.R
 import com.thehalotech.planthealthtracker.navigation.Routes
+import com.thehalotech.planthealthtracker.ui.screens.addplants.AddPlantViewModel
 import com.thehalotech.planthealthtracker.ui.theme.CardBackground
 import com.thehalotech.planthealthtracker.ui.theme.LightGreenBackground
 import com.thehalotech.planthealthtracker.ui.theme.PlantGreen
 import java.nio.file.Files.size
 
 @Composable
-fun DashboardScreen(navController: NavController) {
+fun DashboardScreen(navController: NavController, viewModel: AddPlantViewModel) {
 
     Column(modifier = Modifier.fillMaxSize()
         .background(color = LightGreenBackground)) {

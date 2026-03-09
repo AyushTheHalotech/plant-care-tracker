@@ -7,7 +7,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 
 object RetrofitClient {
 
-    private const val BASE_URL = "https://perenual.com/"
+    private const val BASE_URL = "https://plant.id/"
     val gson = GsonBuilder()
         .setLenient()
         .create()

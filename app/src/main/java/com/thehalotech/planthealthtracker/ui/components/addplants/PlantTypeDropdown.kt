@@ -11,7 +11,7 @@ fun PlantTypeDropdown(plantType: String, onTypeChange: (String) -> Unit) {
     OutlinedTextField(
         value = plantType,
         onValueChange = onTypeChange,
-        label = {Text("Scientific Name")},
+        label = {Text("Common Name")},
         modifier = Modifier.fillMaxWidth()
     )
 }
