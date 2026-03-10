@@ -1,5 +1,6 @@
 package com.thehalotech.planthealthtracker.ui.screens.dashboard
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Notifications
@@ -29,9 +31,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -39,16 +46,25 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.thehalotech.planthealthtracker.R
+import com.thehalotech.planthealthtracker.data.local.MyPlantsTable
 import com.thehalotech.planthealthtracker.navigation.Routes
 import com.thehalotech.planthealthtracker.ui.screens.addplants.AddPlantViewModel
+import com.thehalotech.planthealthtracker.ui.screens.plantlist.daysUntilNextWater
+import com.thehalotech.planthealthtracker.ui.screens.plantlist.epochToLocalDate
 import com.thehalotech.planthealthtracker.ui.theme.CardBackground
 import com.thehalotech.planthealthtracker.ui.theme.LightGreenBackground
 import com.thehalotech.planthealthtracker.ui.theme.PlantGreen
+import com.thehalotech.planthealthtracker.ui.theme.SoftText
 import java.nio.file.Files.size
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
 @Composable
 fun DashboardScreen(navController: NavController, viewModel: AddPlantViewModel) {
+
+    val plants by viewModel.plants.collectAsState(emptyList())
 
     Column(modifier = Modifier.fillMaxSize()
         .background(color = LightGreenBackground)) {
@@ -56,7 +72,7 @@ fun DashboardScreen(navController: NavController, viewModel: AddPlantViewModel) 
         Spacer(modifier = Modifier.height(16.dp))
         HeroPlantCard()
         Spacer(modifier = Modifier.height(16.dp))
-        PlantList(navController)
+        PlantList(navController, plants)
 
     }
 
@@ -152,7 +168,7 @@ fun WeatherCard(stat: String, value: String) {
 }
 
 @Composable
-fun PlantList(navController: NavController) {
+fun PlantList(navController: NavController, plantsList: List<MyPlantsTable>) {
 
     Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween) {
@@ -170,67 +186,70 @@ fun PlantList(navController: NavController) {
         contentPadding = PaddingValues(16.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        item {
-            PlantCard()
-        }
-        item {
-            PlantCard()
-        }
-        item {
-            PlantCard()
-        }
-        item {
-            PlantCard()
-        }
-        item {
-            PlantCard()
-        }
-        item {
-            PlantCard()
-        }
-        item {
-            PlantCard()
-        }
-        item {
-            PlantCard()
-        }
-        item {
-            PlantCard()
-        }
-        item {
-            PlantCard()
+        for(plant in plantsList) {
+            item {
+                PlantCard(plant)
+            }
         }
     }
 
 }
 
 @Composable
-fun PlantCard() {
-    Card(modifier = Modifier.fillMaxWidth().height(180.dp),
-        elevation = CardDefaults.cardElevation(6.dp),
+fun PlantCard(plant: MyPlantsTable) {
+    Card(modifier = Modifier.fillMaxWidth().height(190.dp),
+        shape = RoundedCornerShape(18.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(containerColor = CardBackground))  {
-        Box {
-            Image(painter = painterResource(R.drawable.card_back), contentDescription = "null",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop,
-                alpha = .7f)
-            Column(modifier = Modifier.padding(10.dp).fillMaxSize()) {
-                Image(painter = painterResource(R.drawable.plant),
+        Column(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .height(110.dp)
+                .clip(RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))) {
+                AsyncImage(
+                    model = plant.imagePath?: R.drawable.plant,
                     contentDescription = "Plant",
-                    modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally).weight(1f),
-                    contentScale = ContentScale.Crop)
-                Text(
-                    text = "Cherry Tomato",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(110.dp)
+                        .clip(RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp))
+
                 )
-                Text(
-                    text = "Water in 2 days",
-                    fontSize = 12.sp
+                Box(modifier = Modifier
+                    .matchParentSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                Color.Black.copy(alpha = 0.35f)
+                            )
+                        ))
                 )
             }
-        }
 
+            Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
+                Text(
+                    text = plant.plantName,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 14.sp
+                )
+                val daysUntilWater = daysUntilNextWater(plant.lastWatered, plant.wateringFrequency.toInt())
+                val daysToWater =
+                    if (daysUntilWater < 0) {
+                        "Water Now"
+                    } else {
+                        "Water in $daysUntilWater days"
+                    }
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "\uD83D\uDCA7 $daysToWater",
+                    fontSize = 12.sp,
+                    color = SoftText
+                )
+
+            }
+        }
 
     }
 }

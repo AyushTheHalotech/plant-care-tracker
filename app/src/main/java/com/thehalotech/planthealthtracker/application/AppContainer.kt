@@ -10,7 +10,7 @@ import com.thehalotech.planthealthtracker.data.repository.PlantRepository
 class AppContainer(context: Context) {
     private val database = DatabaseProvider.getDatabase(context)
     private val plantDao = database.dao
-    val plantRepository = PlantRepository(plantDao)
+    val plantRepository = PlantRepository(plantDao, context)
 
     val plantApi = RetrofitClient.api
 }

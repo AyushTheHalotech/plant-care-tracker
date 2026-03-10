@@ -1,5 +1,8 @@
 package com.thehalotech.planthealthtracker.ui.screens.addplants
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,6 +33,7 @@ import com.thehalotech.planthealthtracker.application.PlantApp
 import com.thehalotech.planthealthtracker.data.api.RetrofitClient
 import com.thehalotech.planthealthtracker.ui.components.addplants.Description
 import com.thehalotech.planthealthtracker.ui.components.addplants.LightRequirement
+import com.thehalotech.planthealthtracker.ui.components.addplants.PlantImagePicker
 import com.thehalotech.planthealthtracker.ui.components.addplants.PlantNameInput
 import com.thehalotech.planthealthtracker.ui.components.addplants.PlantTypeDropdown
 import com.thehalotech.planthealthtracker.ui.components.addplants.WateringScheduleDropdown
@@ -39,7 +43,14 @@ import com.thehalotech.planthealthtracker.ui.theme.PlantGreen
 @Composable
 fun AddPlantsScreen(navController: NavController, viewModel: AddPlantViewModel) {
 
-
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) {
+        uri ->
+        uri?.let {
+            viewModel.updateSelectedImageUri(it)
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -55,6 +66,17 @@ fun AddPlantsScreen(navController: NavController, viewModel: AddPlantViewModel) 
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+
+                    PlantImagePicker(
+                        uri = viewModel.selectedImageUri,
+                        onImageSelected = {
+                            launcher.launch(
+                                PickVisualMediaRequest(
+                                    ActivityResultContracts.PickVisualMedia.ImageOnly))
+
+                        }
+                    )
+
                     PlantNameInput(
                         plantName = viewModel.searchQuery,
                         results = viewModel.searchResults,
@@ -72,8 +94,8 @@ fun AddPlantsScreen(navController: NavController, viewModel: AddPlantViewModel) 
                 }
 
                 AddPlantButton(onClick = {
-                    viewModel.addPlant()
-                    navController.popBackStack()
+                    viewModel.addPlant{navController.popBackStack()}
+
                 },
                     modifier = Modifier
                         .fillMaxWidth()

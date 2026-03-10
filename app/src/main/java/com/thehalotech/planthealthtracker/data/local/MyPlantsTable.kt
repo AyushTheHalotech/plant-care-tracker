@@ -10,6 +10,7 @@ data class MyPlantsTable(
     val lastWatered: Long,
     val lightRequirement: String,
     val description: String,
+    val imagePath:String? = null,
 
     @PrimaryKey(autoGenerate = false)
     val plantName: String

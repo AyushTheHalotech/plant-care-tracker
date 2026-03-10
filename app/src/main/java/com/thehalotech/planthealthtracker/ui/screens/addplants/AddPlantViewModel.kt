@@ -1,5 +1,6 @@
 package com.thehalotech.planthealthtracker.ui.screens.addplants
 
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -8,13 +9,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.gson.Gson
-import com.thehalotech.planthealthtracker.BuildConfig
 import com.thehalotech.planthealthtracker.data.api.PlantApiService
 import com.thehalotech.planthealthtracker.data.local.MyPlantsTable
-import com.thehalotech.planthealthtracker.data.model.PlantDetails
 import com.thehalotech.planthealthtracker.data.model.PlantEntity
-import com.thehalotech.planthealthtracker.data.model.PlantSearchItem
 import com.thehalotech.planthealthtracker.data.repository.PlantRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -59,6 +56,9 @@ class AddPlantViewModel(private val api: PlantApiService,
         private set
 
     var description by mutableStateOf("")
+        private set
+
+    var selectedImageUri by mutableStateOf<Uri?>(null)
         private set
 
     private val queryFlow = MutableStateFlow("")
@@ -172,7 +172,7 @@ class AddPlantViewModel(private val api: PlantApiService,
         isLoading = false
     }
 
-    fun addPlant() {
+    fun addPlant(onFinished: () -> Unit) {
         val dateAdded = LocalDate.now().toEpochDay()
         viewModelScope.launch {
             val plant = MyPlantsTable(
@@ -183,8 +183,29 @@ class AddPlantViewModel(private val api: PlantApiService,
                 lightRequirement = lightRequirement,
                 description = description
             )
-            repository.addPlant(plant)
+            repository.addPlant(plant, selectedImageUri)
+            resetForm()
+            onFinished()
         }
     }
 
+    fun updateSelectedImageUri(uri: Uri?) {
+        selectedImageUri = uri
+    }
+
+    fun resetForm() {
+        searchQuery = ""
+        searchResults = emptyList()
+
+        selectedPlant = null
+        plantName = ""
+
+        plantType = ""
+        wateringSchedule = ""
+        lightRequirement = ""
+        description = ""
+
+        selectedImageUri = null
+    }
 }
+

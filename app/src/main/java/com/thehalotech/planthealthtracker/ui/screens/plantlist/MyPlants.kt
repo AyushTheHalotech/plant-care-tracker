@@ -38,8 +38,10 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -49,9 +51,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.thehalotech.planthealthtracker.R
 import com.thehalotech.planthealthtracker.data.local.MyPlantsTable
-import com.thehalotech.planthealthtracker.data.model.Plants
 import com.thehalotech.planthealthtracker.ui.screens.addplants.AddPlantViewModel
 import com.thehalotech.planthealthtracker.ui.theme.CardBackground
 import com.thehalotech.planthealthtracker.ui.theme.LightGreenBackground
@@ -68,14 +70,6 @@ fun MyPlants(navController: NavController, viewModel: AddPlantViewModel) {
 
     val plants by viewModel.plants.collectAsState(emptyList())
 
-    val plantsDummy = listOf(
-        Plants("Cherry Tomato", "Solanum lycopersicum", 1),
-        Plants("Chilli", "Capsicum annuum", 0),
-        Plants("Zinnia", "Zinnia elegans", 2),
-        Plants("Cherry Tomato", "Solanum lycopersicum", 1),
-        Plants("Chilli", "Capsicum annuum", 0),
-        Plants("Zinnia", "Zinnia elegans", 2)
-    )
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = LightGreenBackground,
@@ -111,12 +105,14 @@ fun MyPlantListCard(plant: MyPlantsTable, onWaterClicked: () -> Unit) {
             containerColor = CardBackground
         )
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize()
+        Row(
+            modifier = Modifier.height(210.dp).fillMaxWidth()
         ) {
 
             Column(modifier = Modifier
-                .padding(start = 20.dp, top = 16.dp, end = 16.dp, bottom = 16.dp)) {
+                .padding(18.dp)
+                .weight(1f),
+                verticalArrangement = Arrangement.SpaceBetween) {
                 Text(
                     text = plant.plantName,
                     fontWeight = FontWeight.Bold,
@@ -125,7 +121,8 @@ fun MyPlantListCard(plant: MyPlantsTable, onWaterClicked: () -> Unit) {
 
                 Text(
                     text = plant.commonName,
-                    color = SoftText
+                    color = SoftText,
+                    fontSize = 12.sp
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -160,27 +157,16 @@ fun MyPlantListCard(plant: MyPlantsTable, onWaterClicked: () -> Unit) {
             }
 
             Spacer(modifier = Modifier.height(12.dp))
-
-            Image(
-                painter = painterResource(R.drawable.plant),
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
-
+            AsyncImage(
+                model = plant.imagePath?: R.drawable.plant,
+                contentDescription = "Plant",
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxHeight()
-                    .width(200.dp)
-                    .offset(x = (190).dp)
-                    .blur(10.dp)
-            )
-            Image(
-                painter = painterResource(R.drawable.plant),
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
+                    .width(140.dp)
+                    .padding(20.dp)
+                    .clip(RoundedCornerShape(24.dp))
 
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .width(200.dp)
-                    .offset(x = (200).dp)
             )
 
 
