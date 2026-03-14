@@ -6,7 +6,7 @@ data class DetailsResponse(
     @SerializedName("common_names")
     val commonNames: List<String>,
     val description: Description,
-    val watering: Watering,
+    val watering: Watering?,
     @SerializedName("best_light_condition")
     val bestLightCondition: String,
     val language: String,

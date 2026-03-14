@@ -4,8 +4,10 @@ import android.content.Context
 import android.net.Uri
 import com.thehalotech.planthealthtracker.data.local.MyPlantsTable
 import com.thehalotech.planthealthtracker.data.local.PlantDao
+import kotlinx.coroutines.flow.Flow
 import java.io.File
 import java.io.FileOutputStream
+import java.time.LocalDate
 
 class PlantRepository(private val dao: PlantDao, private val context: Context) {
 
@@ -46,6 +48,15 @@ class PlantRepository(private val dao: PlantDao, private val context: Context) {
 
         return file.absolutePath
 
+    }
+
+    fun getPlant(plantName: String): Flow<MyPlantsTable> {
+        return dao.getPlantByName(plantName)
+    }
+
+    suspend fun markWatered(plantName: String) {
+        val today = LocalDate.now().toEpochDay()
+        dao.updateLastWatered(plantName, today)
     }
 
 }

@@ -62,7 +62,7 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
 @Composable
-fun DashboardScreen(navController: NavController, viewModel: AddPlantViewModel) {
+fun DashboardScreen(navController: NavController, viewModel: DashboardViewModel) {
 
     val plants by viewModel.plants.collectAsState(emptyList())
 
@@ -188,7 +188,7 @@ fun PlantList(navController: NavController, plantsList: List<MyPlantsTable>) {
         verticalArrangement = Arrangement.spacedBy(12.dp)) {
         for(plant in plantsList) {
             item {
-                PlantCard(plant)
+                PlantCard(plant, navController)
             }
         }
     }
@@ -196,11 +196,12 @@ fun PlantList(navController: NavController, plantsList: List<MyPlantsTable>) {
 }
 
 @Composable
-fun PlantCard(plant: MyPlantsTable) {
+fun PlantCard(plant: MyPlantsTable, navController: NavController) {
     Card(modifier = Modifier.fillMaxWidth().height(190.dp),
         shape = RoundedCornerShape(18.dp),
         elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(containerColor = CardBackground))  {
+        colors = CardDefaults.cardColors(containerColor = CardBackground),
+        onClick = {goToDetails(plant.plantName, navController)})  {
         Column(modifier = Modifier.fillMaxSize()) {
             Box(modifier = Modifier
                 .fillMaxWidth()
@@ -252,4 +253,8 @@ fun PlantCard(plant: MyPlantsTable) {
         }
 
     }
+}
+
+fun goToDetails(name: String, navController: NavController) {
+    navController.navigate("details/${name}")
 }

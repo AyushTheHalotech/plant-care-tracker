@@ -66,7 +66,7 @@ import java.time.temporal.ChronoUnit
 import kotlin.collections.emptyList
 
 @Composable
-fun MyPlants(navController: NavController, viewModel: AddPlantViewModel) {
+fun MyPlants(navController: NavController, viewModel: PlantlistViewModel) {
 
     val plants by viewModel.plants.collectAsState(emptyList())
 
@@ -84,7 +84,9 @@ fun MyPlants(navController: NavController, viewModel: AddPlantViewModel) {
 
         LazyColumn(modifier = Modifier.padding(padding)) {
             items(plants) { plant ->
-                MyPlantListCard(plant = plant, onWaterClicked = { /*TODO*/ })
+                MyPlantListCard(plant = plant, navController, onWaterClicked = {
+                    viewModel.markWatered(plant.plantName)
+                })
 
             }
 
@@ -94,7 +96,7 @@ fun MyPlants(navController: NavController, viewModel: AddPlantViewModel) {
 }
 
 @Composable
-fun MyPlantListCard(plant: MyPlantsTable, onWaterClicked: () -> Unit) {
+fun MyPlantListCard(plant: MyPlantsTable,navController: NavController, onWaterClicked: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -103,7 +105,10 @@ fun MyPlantListCard(plant: MyPlantsTable, onWaterClicked: () -> Unit) {
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = CardBackground
-        )
+        ),
+        onClick = {
+            navController.navigate("details/${plant.plantName}")
+        }
     ) {
         Row(
             modifier = Modifier.height(210.dp).fillMaxWidth()
@@ -127,7 +132,7 @@ fun MyPlantListCard(plant: MyPlantsTable, onWaterClicked: () -> Unit) {
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                StatusRow()
+                StatusRow(plant)
 
                 Spacer(modifier = Modifier.height(10.dp))
 
@@ -210,11 +215,31 @@ fun AddFabBar(navController: NavController) {
 }
 
 @Composable
-fun StatusRow() {
+fun StatusRow(plant: MyPlantsTable) {
+    val moistureLevel = when(plant.wateringFrequency) {
+        "1" ->  80
+        "2" -> 60
+        "3" -> 40
+        "7" -> 20
+        else -> 50
+    }
+    val lightData = plant.lightRequirement.substringBefore('.')
+    val lightRequirement = when {
+        lightData.contains("bright, indirect light") -> "50"
+        lightData.contains("full sun") -> "90"
+        lightData.contains("shade") -> "20"
+        else -> "40"
+    }
+    val tempRequired = when {
+        lightData.contains("bright, indirect light") -> "24"
+        lightData.contains("full sun") -> "30"
+        lightData.contains("shade") -> "19"
+        else -> "22"
+    }
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        StatusCard("☀️ 20%")
-        StatusCard("💧 40%")
-        StatusCard("🌡 22°C")
+        StatusCard("☀️ $lightRequirement%")
+        StatusCard("💧 $moistureLevel%")
+        StatusCard("🌡 ${tempRequired}°C")
 
     }
 }
@@ -228,7 +253,6 @@ fun StatusCard(text: String) {
             text = text,
             fontSize = 12.sp,
             modifier = Modifier.padding(2.dp)
-
         )
     }
 }
@@ -243,8 +267,6 @@ fun daysUntilNextWater(lastWateredEpoch: Long, frequency: Int): Long {
     val lastWateredDate = epochToLocalDate(lastWateredEpoch)
 
     val nextWaterDate = lastWateredDate.plusDays(frequency.toLong())
-
-    Log.i("TheHalotech::", "Last watered: $lastWateredDate \nNext watering: $nextWaterDate")
 
     return ChronoUnit.DAYS.between(LocalDate.now(), nextWaterDate)
 }

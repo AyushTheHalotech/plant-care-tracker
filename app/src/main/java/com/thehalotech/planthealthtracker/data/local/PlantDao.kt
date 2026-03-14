@@ -19,4 +19,10 @@ interface PlantDao {
     @Query("SELECT * FROM my_plants")
     fun getAllPlants(): Flow<List<MyPlantsTable>>
 
+    @Query("SELECT * FROM my_plants WHERE plantName = :plantName")
+    fun getPlantByName(plantName: String): Flow<MyPlantsTable>
+
+    @Query("UPDATE my_plants SET lastWatered = :date WHERE plantName = :plantName")
+    fun updateLastWatered(plantName: String, date: Long)
+
 }

@@ -145,7 +145,11 @@ class AddPlantViewModel(private val api: PlantApiService,
             Log.i(TAG, response.toString())
             val common_name = response.commonNames.firstOrNull()?:""
             val det = response.description.value
-            val moisture = response.watering.max
+            val wateringObj = response.watering
+            var moisture = 2
+            if(wateringObj != null) {
+                moisture = response.watering.min
+            }
             var wateringFreq = 0
             val sunlight = response.bestLightCondition
             val name = response.name
