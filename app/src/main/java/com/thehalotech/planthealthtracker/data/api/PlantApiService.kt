@@ -1,8 +1,8 @@
 package com.thehalotech.planthealthtracker.data.api
 
 import com.thehalotech.planthealthtracker.BuildConfig
-import com.thehalotech.planthealthtracker.data.model.DetailsResponse
-import com.thehalotech.planthealthtracker.data.model.PlantIdResponse
+import com.thehalotech.planthealthtracker.data.remote.dto.DetailsResponse
+import com.thehalotech.planthealthtracker.data.remote.dto.PlantIdResponse
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Path

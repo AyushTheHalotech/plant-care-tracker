@@ -10,17 +10,17 @@ import kotlinx.coroutines.flow.Flow
 interface PlantDao {
 
     @Upsert
-    suspend fun addPlant(myPlant: MyPlantsTable)
+    suspend fun addPlant(myPlant: PlantEntity)
 
     @Delete
-    suspend fun deletePlant(myPlant: MyPlantsTable)
+    suspend fun deletePlant(myPlant: PlantEntity)
 
 
     @Query("SELECT * FROM my_plants")
-    fun getAllPlants(): Flow<List<MyPlantsTable>>
+    fun getAllPlants(): Flow<List<PlantEntity>>
 
-    @Query("SELECT * FROM my_plants WHERE plantName = :plantName")
-    fun getPlantByName(plantName: String): Flow<MyPlantsTable>
+    @Query("SELECT * FROM my_plants WHERE entityId = :plantId")
+    fun getPlantById(plantId: String): Flow<PlantEntity?>
 
     @Query("UPDATE my_plants SET lastWatered = :date WHERE plantName = :plantName")
     fun updateLastWatered(plantName: String, date: Long)
