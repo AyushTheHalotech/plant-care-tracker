@@ -39,6 +39,6 @@ A modern Android application built with Jetpack Compose to help you track and ma
 
 ## Screenshots
 
-
+![img.png](img.png)  ![img_1.png](img_1.png)  ![img_2.png](img_2.png) ![img_3.png](img_3.png)
 ---
 Developed with ❤️ by TheHaloTech.
