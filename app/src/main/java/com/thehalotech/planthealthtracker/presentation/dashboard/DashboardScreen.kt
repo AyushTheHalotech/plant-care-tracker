@@ -29,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -52,15 +53,20 @@ import com.thehalotech.planthealthtracker.presentation.theme.CardBackground
 import com.thehalotech.planthealthtracker.presentation.theme.LightGreenBackground
 import com.thehalotech.planthealthtracker.presentation.theme.PlantGreen
 import com.thehalotech.planthealthtracker.presentation.theme.SoftText
+import com.thehalotech.planthealthtracker.presentation.user.UserViewModel
 
 @Composable
 fun DashboardScreen(navController: NavController, viewModel: DashboardViewModel) {
 
     val plants by viewModel.plants.collectAsState(emptyList())
+    LaunchedEffect(Unit) {
+        viewModel.loadUser()
+    }
+    val user = viewModel.username
 
     Column(modifier = Modifier.fillMaxSize()
         .background(color = LightGreenBackground)) {
-        ProfileHeader()
+        ProfileHeader(user ?: "Guest")
         Spacer(modifier = Modifier.height(16.dp))
         HeroPlantCard()
         Spacer(modifier = Modifier.height(16.dp))
@@ -71,7 +77,7 @@ fun DashboardScreen(navController: NavController, viewModel: DashboardViewModel)
 }
 
 @Composable
-fun ProfileHeader() {
+fun ProfileHeader(user: String) {
     Row(modifier = Modifier.fillMaxWidth()
         .padding(horizontal = 20.dp, vertical = 30.dp),
         verticalAlignment = Alignment.CenterVertically) {
@@ -82,7 +88,7 @@ fun ProfileHeader() {
                 .size(50.dp).border(1.dp, PlantGreen, CircleShape))
 
         Column(modifier = Modifier.padding(start = 10.dp)) {
-            Text(text = "Hi Ayush!",
+            Text(text = "Hi $user!",
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp)
             Text(text = "Welcome Back!")
