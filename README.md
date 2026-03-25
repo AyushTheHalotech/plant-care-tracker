@@ -15,7 +15,7 @@ A modern Android application built with Jetpack Compose to help you track and ma
 
 - **UI**: [Jetpack Compose](https://developer.android.com/jetpack/compose) for a modern, declarative UI.
 - **Language**: [Kotlin](https://kotlinlang.org/)
-- **Architecture**: MVVM (Model-View-ViewModel)
+- **Architecture**: Clean Architecture with MVVM (Model-View-ViewModel)
 - **Local Database**: [Room](https://developer.android.com/training/data-storage/room) for persistent storage of your plant collection.
 - **Networking**: [Retrofit](https://square.github.io/retrofit/) & [Gson](https://github.com/google/gson) for API communication.
 - **Image Loading**: [Coil](https://coil-kt.github.io/coil/) for asynchronous image loading.
@@ -23,12 +23,22 @@ A modern Android application built with Jetpack Compose to help you track and ma
 
 ## Project Structure
 
-- `ui/screens/dashboard`: Main entry point with plant overview.
-- `ui/screens/addplants`: Interface for searching and adding new plants.
-- `ui/screens/plantlist`: Your personal collection of plants.
-- `ui/screens/plantdetails`: Detailed care information for a specific plant.
-- `data/local`: Room database entities and DAOs.
-- `data/api`: Retrofit service interfaces and API models.
+The project follows Clean Architecture principles, divided into the following layers:
+
+- **`presentation/`**: The UI layer containing Jetpack Compose screens, ViewModels, and themes.
+  - `dashboard/`, `plantlist/`, `addplant/`, `plantdetails/`: Individual feature screens.
+  - `introduction/`, `user/`: Onboarding and user registration.
+  - `navigation/`: App routing and navigation graph.
+- **`domain/`**: The core business logic layer.
+  - `model/`: Domain entities used throughout the app.
+  - `usecase/`: Specific business rules (e.g., `AddPlantUseCase`).
+  - `repository/`: Repository interfaces.
+- **`data/`**: The data source layer.
+  - `local/`: Room database implementation (Entities, DAOs).
+  - `remote/`: Retrofit API services and DTOs.
+  - `repository/`: Concrete implementations of domain repositories.
+  - `mapper/`: Utilities to convert between DTOs, Entities, and Domain models.
+- **`application/`**: App-level configurations and Dependency Injection setup.
 
 ## Getting Started
 
