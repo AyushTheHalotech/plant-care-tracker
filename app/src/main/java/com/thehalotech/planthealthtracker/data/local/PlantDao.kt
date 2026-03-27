@@ -22,7 +22,7 @@ interface PlantDao {
     @Query("SELECT * FROM my_plants WHERE entityId = :plantId")
     fun getPlantById(plantId: String): Flow<PlantEntity?>
 
-    @Query("UPDATE my_plants SET lastWatered = :date WHERE plantName = :plantName")
-    fun updateLastWatered(plantName: String, date: Long)
+    @Query("UPDATE my_plants SET lastWatered = :date WHERE entityId = :plantId")
+    fun updateLastWatered(plantId: String, date: Long)
 
 }

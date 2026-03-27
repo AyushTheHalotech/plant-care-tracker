@@ -75,7 +75,7 @@ fun MyPlants(navController: NavController, viewModel: PlantListViewModel) {
         LazyColumn(modifier = Modifier.padding(padding)) {
             items(plants) { plant ->
                 MyPlantListCard(plant = plant, navController, onWaterClicked = {
-                    viewModel.markWatered(plant.name)
+                    viewModel.markWatered(plant.id)
                 })
 
             }

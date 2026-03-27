@@ -16,6 +16,7 @@ import com.thehalotech.planthealthtracker.domain.model.IdentifiedPlantDomain
 import kotlinx.coroutines.flow.map
 import java.io.File
 import java.io.FileOutputStream
+import java.time.LocalDate
 
 class PlantRepositoryImpl(
     private val plantDao: PlantDao,
@@ -58,8 +59,9 @@ class PlantRepositoryImpl(
         return response.toDomain()
     }
 
-    override suspend fun markWatered(plantName: String) {
-        TODO("Not yet implemented")
+    override suspend fun markWatered(plantId: String) {
+        val today = LocalDate.now().toEpochDay()
+        plantDao.updateLastWatered(plantId, today)
     }
 
     override fun getPlantById(plantId: String): Flow<Plant> {

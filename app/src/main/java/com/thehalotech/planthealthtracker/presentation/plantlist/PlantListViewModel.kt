@@ -18,7 +18,7 @@ class PlantListViewModel(
 
     fun markWatered(plantId: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            markWatered(plantId)
+            markPlantWatered(plantId)
         }
     }
     

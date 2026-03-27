@@ -135,7 +135,7 @@ fun MainData(p : Plant, navController: NavController, viewModel: PlantDetailsVie
                     PlantDeets(lightRequirement)
                     HorizontalDivider(thickness = 2.dp, modifier = Modifier.padding(10.dp))
                     Spacer(modifier = Modifier.height(20.dp))
-                    Button(onClick = {onWaterClicked(p.name, viewModel)},
+                    Button(onClick = {onWaterClicked(p.id, viewModel)},
                         shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = PlantGreen),

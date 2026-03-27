@@ -1,5 +1,6 @@
 package com.thehalotech.planthealthtracker.presentation.plantdetails
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.thehalotech.planthealthtracker.domain.repository.PlantRepository

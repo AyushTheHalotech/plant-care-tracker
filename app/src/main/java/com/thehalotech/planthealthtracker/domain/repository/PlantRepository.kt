@@ -17,7 +17,7 @@ interface PlantRepository {
 
     suspend fun getPlantDetails(plantId: String): PlantDetailsDomain
 
-    suspend fun markWatered(plantName: String)
+    suspend fun markWatered(plantId: String)
 
     fun getPlantById(plantId: String): Flow<Plant?>
 
