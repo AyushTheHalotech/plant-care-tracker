@@ -57,4 +57,4 @@ The project follows Clean Architecture principles, divided into the following la
 </p>
 
 ---
-Developed with ❤️ by TheHaloTech.
+Developed with ❤️ by AJDevLabs.
